@@ -6,10 +6,15 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 file(GLOB_RECURSE all_SRCS
 		"${PROJECT_SOURCE_DIR}/src/*.cpp"
-		"${PROJECT_SOURCE_DIR}/external/glad/src/*.c"
         )
 
-add_executable(${PROJECT_NAME} ${all_SRCS})
+file(GLOB IMGUI_SRCS
+		"${PROJECT_SOURCE_DIR}/external/imgui/imgui*.cpp"
+		"${PROJECT_SOURCE_DIR}/external/imgui/backends/imgui_impl_sdlrenderer2.cpp"
+		"${PROJECT_SOURCE_DIR}/external/imgui/backends/imgui_impl_sdl2.cpp"
+		)
+
+add_executable(${PROJECT_NAME} ${all_SRCS} ${IMGUI_SRCS})
 
 target_compile_options(${PROJECT_NAME} PRIVATE 
     -Wall
@@ -28,7 +33,8 @@ target_include_directories(${PROJECT_NAME} PRIVATE
     ${SDL2_INCLUDE_DIRS}
 	${SDL2_IMAGE_INCLUDE_DIRS}
 	"${PROJECT_SOURCE_DIR}/include"
-	"${PROJECT_SOURCE_DIR}/external/stb/"
+	"${PROJECT_SOURCE_DIR}/external/imgui/"
+	"${PROJECT_SOURCE_DIR}/external/imgui/backends/"
 )
 
 target_link_libraries(${PROJECT_NAME} PRIVATE

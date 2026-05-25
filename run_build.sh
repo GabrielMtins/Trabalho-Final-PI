@@ -9,5 +9,5 @@ fi
 
 if [ $? -eq 0 ]; then
 	project_name=$(grep "project(" CMakeLists.txt | sed "s/.*(//g; s/)//g")
-	cd build && make -j16 && cd .. && ./build/"$project_name" && sxiv test.png
+	cd build && make -j16 && cd .. && ./build/"$project_name" 
 fi

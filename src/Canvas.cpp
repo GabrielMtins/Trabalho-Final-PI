@@ -4,16 +4,16 @@
 #include <cstdint>
 #include <cstdlib>
 
-Canvas::Canvas(void) : w(0), h(0) {
+Canvas::Canvas(void) : w(0), h(0), outside_value(0.0f) {
 }
 
-Canvas::Canvas(int w, int h) : w(w), h(h) {
+Canvas::Canvas(int w, int h, float outside_value) : w(w), h(h), outside_value(outside_value) {
 	data.resize(w * h);
 }
 
 float Canvas::getPixel(int i, int j) const {
 	if(i < 0 || j < 0 || i >= w || j >= h) {
-		return 0.0f;
+		return outside_value;
 	}
 
 	return data.at(i + j * w);
@@ -37,6 +37,34 @@ void Canvas::randomNoise(unsigned int seed) {
 	}
 }
 
+int Canvas::getWidth(void) const {
+	return w;
+}
+
+int Canvas::getHeight(void) const {
+	return h;
+}
+
+float Canvas::getMaxValue(void) const {
+	float value = 0.0f;
+
+	for(float i : data) {
+		if(i > value) value = i;
+	}
+
+	return value;
+}
+
+float Canvas::getMinValue(void) const {
+	float value = MAX_HEIGHT;
+
+	for(float i : data) {
+		if(i < value) value = i;
+	}
+
+	return value;
+}
+
 SDL_Surface * Canvas::toSurface(const std::array<SDL_Color, MAX_HEIGHT>& height_to_color) const {
 	SDL_Surface *surface;
 	uint32_t *pixels;
@@ -56,6 +84,18 @@ SDL_Surface * Canvas::toSurface(const std::array<SDL_Color, MAX_HEIGHT>& height_
 	}
 
 	return surface;
+}
+
+SDL_Texture * Canvas::toTexture(SDL_Renderer *renderer, const std::array<SDL_Color, MAX_HEIGHT>& height_to_color) const {
+	SDL_Surface *surface;
+	SDL_Texture *texture;
+
+	surface = toSurface(height_to_color);
+	texture = SDL_CreateTextureFromSurface(renderer, surface);
+
+	SDL_FreeSurface(surface);
+
+	return texture;
 }
 
 std::array<float, MAX_HEIGHT> Canvas::getNormalizedHistogram(void) const {

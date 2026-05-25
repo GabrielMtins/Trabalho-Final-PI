@@ -10,7 +10,7 @@
 class Canvas {
 	public:
 		Canvas(void);
-		Canvas(int w, int h);
+		Canvas(int w, int h, float outside_value = 0.0f);
 
 		float getPixel(int i, int j) const;
 		void setPixel(int i, int j, float value);
@@ -19,14 +19,18 @@ class Canvas {
 		int getWidth(void) const;
 		int getHeight(void) const;
 
+		float getMaxValue(void) const;
+		float getMinValue(void) const;
+
 		SDL_Surface * toSurface(const std::array<SDL_Color, MAX_HEIGHT>& height_to_color) const;
+		SDL_Texture * toTexture(SDL_Renderer *renderer, const std::array<SDL_Color, MAX_HEIGHT>& height_to_color) const;
 
 		std::array<float, MAX_HEIGHT> getNormalizedHistogram(void) const;
 
 		template<typename Functor>
 		void applyToAllPixels(Functor func_color) {
 			int i, j;
-			Canvas other(w, h);
+			Canvas other(w, h, outside_value);
 
 			#pragma omp parallel for collapse(2) private(i)
 			for(j = 0; j < h; j++) {
@@ -44,6 +48,7 @@ class Canvas {
 	private:
 		std::vector<float> data;
 		int w, h;
+		float outside_value;
 };
 
 
