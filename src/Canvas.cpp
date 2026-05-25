@@ -57,3 +57,24 @@ SDL_Surface * Canvas::toSurface(const std::array<SDL_Color, MAX_HEIGHT>& height_
 
 	return surface;
 }
+
+std::array<float, MAX_HEIGHT> Canvas::getNormalizedHistogram(void) const {
+	std::array<float, MAX_HEIGHT> histogram{};
+	float sum = 0.0f;
+
+	for(float i : data) {
+		int to_index = int(i) % MAX_HEIGHT;
+		histogram.at(i)++;
+		sum += 1.0f;
+	}
+
+	for(int i = 1; i < MAX_HEIGHT; i++) {
+		histogram[i] += histogram[i - 1];
+	}
+
+	for(float& i : histogram) {
+		i = 255.0f * i / sum;
+	}
+
+	return histogram;
+}

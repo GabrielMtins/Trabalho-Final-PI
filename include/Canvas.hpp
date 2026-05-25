@@ -21,6 +21,8 @@ class Canvas {
 
 		SDL_Surface * toSurface(const std::array<SDL_Color, MAX_HEIGHT>& height_to_color) const;
 
+		std::array<float, MAX_HEIGHT> getNormalizedHistogram(void) const;
+
 		template<typename Functor>
 		void applyToAllPixels(Functor func_color) {
 			int i, j;

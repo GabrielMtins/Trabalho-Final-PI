@@ -51,30 +51,12 @@ namespace Filter {
 			res += kernel1d[y + radius] * temp;
 		}
 
-		/*
-		for(int x = -radius; x <= radius; x++) {
-			temp += kernel1d[x + radius] * canvas.getPixel(i * x, j);
-		}
-
-		for(int y = -radius; y <= radius; y++) {
-			res += kernel1d[y + radius] * temp;
-		}
-		*/
-
 		return res;
 	}
 
-	template<float lower, float higher>
-	float applyLimit(const Canvas& canvas, int i, int j) {
-		float res = 0.0f;
+	float applyLimit(const Canvas& canvas, int i, int j, float lower, float higher);
 
-		res = canvas.getPixel(i, j);
-
-		if(res < lower) res = 0.0f;
-		if(res > higher) res = MAX_HEIGHT - 1;
-
-		return res;
-	}
+	float applyTransform(const Canvas& canvas, int i, int j, const std::array<float, MAX_HEIGHT>& palette);
 };
 
 
