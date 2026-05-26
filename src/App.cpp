@@ -32,8 +32,6 @@ App::App(void) {
 
 	ImGui_ImplSDL2_InitForSDLRenderer(window, renderer);
 	ImGui_ImplSDLRenderer2_Init(renderer);
-
-	generator.render(renderer);
 }
 
 void App::run(void) {
@@ -141,13 +139,11 @@ void App::renderGeneratorWindow(void) {
 }
 
 void App::renderStepWindow(void) {
-	//ImGui::SetNextWindowSize(ImVec2(420, 600));
 	ImGui::SetNextWindowSizeConstraints(
 			ImVec2(0, 800),
 			ImVec2(FLT_MAX, 800)
 			);
-	ImGui::Begin("Resultado de Geração", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize);
-	//ImGui::Begin("Resultado de Geração", nullptr, ImGuiWindowFlags_NoResize);
+	ImGui::Begin("Passos da Geração", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize);
 
 	if(generator.steps.empty()) {
 		ImGui::TextWrapped("Renderize alguma coisa para você ver as etapas!");

@@ -18,5 +18,26 @@ namespace Filter {
 
 		return palette.at(to_index);
 	}
+
+	float distanceMask(const Canvas& canvas, int i, int j) {
+		float dx = float(i) / float(canvas.getWidth());
+		float dy = float(j) / float(canvas.getHeight());
+
+		dx *= 2.0f;
+		dy *= 2.0f;
+
+		dx -= 1.0f;
+		dy -= 1.0f;
+
+		float distance = dx * dx + dy * dy;
+
+		distance *= 1.5f;
+
+		if(distance > 1.0f) {
+			return 0.0f;
+		}
+
+		return canvas.getPixel(i, j) * (1.0f - distance);
+	}
 }
 

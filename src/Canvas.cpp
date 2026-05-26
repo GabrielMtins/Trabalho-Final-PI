@@ -65,6 +65,10 @@ float Canvas::getMinValue(void) const {
 	return value;
 }
 
+void Canvas::setOutsideValue(float outside_value) {
+	this->outside_value = outside_value;
+}
+
 SDL_Surface * Canvas::toSurface(const std::array<SDL_Color, MAX_HEIGHT>& height_to_color) const {
 	SDL_Surface *surface;
 	uint32_t *pixels;
@@ -103,7 +107,6 @@ std::array<float, MAX_HEIGHT> Canvas::getNormalizedHistogram(void) const {
 	float sum = 0.0f;
 
 	for(float i : data) {
-		int to_index = int(i) % MAX_HEIGHT;
 		histogram.at(i)++;
 		sum += 1.0f;
 	}

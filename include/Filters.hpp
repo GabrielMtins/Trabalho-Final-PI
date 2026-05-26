@@ -19,11 +19,12 @@ namespace Filter {
 		return res;
 	}
 
-	template<int size, float sigma>
+	template<int size, int sigma10>
 	float gaussianBlur(const Canvas& canvas, int i, int j) {
 		static constexpr int radius = size / 2;
 
 		static constexpr auto kernel1d = []() constexpr {
+			constexpr float sigma = float(sigma10) / 10;
 			std::array<float, size> k{};
 			float sum = 0.0f;
 
@@ -57,6 +58,8 @@ namespace Filter {
 	float applyLimit(const Canvas& canvas, int i, int j, float lower, float higher);
 
 	float applyTransform(const Canvas& canvas, int i, int j, const std::array<float, MAX_HEIGHT>& palette);
+
+	float distanceMask(const Canvas& canvas, int i, int j);
 };
 
 

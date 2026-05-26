@@ -22,6 +22,8 @@ class Canvas {
 		float getMaxValue(void) const;
 		float getMinValue(void) const;
 
+		void setOutsideValue(float outside_value);
+
 		SDL_Surface * toSurface(const std::array<SDL_Color, MAX_HEIGHT>& height_to_color) const;
 		SDL_Texture * toTexture(SDL_Renderer *renderer, const std::array<SDL_Color, MAX_HEIGHT>& height_to_color) const;
 

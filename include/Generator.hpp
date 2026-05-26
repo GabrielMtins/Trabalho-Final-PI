@@ -39,14 +39,15 @@ class Generator {
 		void setSeed(int seed);
 
 		std::vector<StepGen> steps;
+		SDL_Texture *heightmap = NULL;
+		SDL_Texture *colormap = NULL;
 
 	private:
 		void generateMountain(SDL_Renderer *renderer);
+		void generateIsland(SDL_Renderer *renderer);
 
 		Mode mode = MODE_MOUNTAIN;
 
-		SDL_Texture *heightmap = NULL;
-		SDL_Texture *colormap = NULL;
 		int seed = 0;
 
 		Canvas canvas;
