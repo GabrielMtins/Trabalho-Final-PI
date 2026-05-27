@@ -18,7 +18,7 @@ void Generator::setMode(Mode mode) {
 	this->mode = mode;
 }
 
-void Generator::render(SDL_Renderer *renderer) {
+void Generator::render(SDL_Renderer *renderer, Heightmap& heightmap) {
 	resetGeneration();
 
 	switch(mode) {
@@ -33,6 +33,8 @@ void Generator::render(SDL_Renderer *renderer) {
 		default:
 			break;
 	}
+
+	heightmap.makeColormap(renderer, canvas);
 }
 
 void Generator::resetGeneration(void) {
@@ -43,9 +45,13 @@ void Generator::setSeed(int seed) {
 	this->seed = seed;
 }
 
+const Canvas& Generator::getCanvas(void) const {
+	return canvas;
+}
+
 void Generator::generateMountain(SDL_Renderer *renderer) {
 	canvas.randomNoise(seed);
-	canvas.setOutsideValue(255.0f);
+	canvas.setOutsideValue(128.0f);
 
 	steps.emplace_back(
 			canvas.toTexture(renderer, height_colors),
@@ -53,7 +59,7 @@ void Generator::generateMountain(SDL_Renderer *renderer) {
 			);
 
 	for(int i = 0; i < 12; i++) {
-		canvas.applyToAllPixels(Filter::gaussianBlur<7, 15>);
+		canvas.applyToAllPixels(Filter::gaussianBlur<15, 15>);
 	}
 
 	steps.emplace_back(
@@ -75,12 +81,23 @@ void Generator::generateMountain(SDL_Renderer *renderer) {
 			);
 
 	for(int i = 0; i < 4; i++) {
-		canvas.applyToAllPixels(Filter::gaussianBlur<7, 15>);
+		canvas.applyToAllPixels(Filter::gaussianBlur<3, 15>);
 	}
 
 	steps.emplace_back(
-			canvas.toTexture(renderer, height_to_colormap),
+			canvas.toTexture(renderer, height_colors),
 			"Adicionado filtro passa-baixa gaussiano para suavizar as diferenças de altura criada pela equalização do histograma."
+			);
+
+	auto increaseHeight = [](const Canvas& canvas, int i, int j) {
+		return fminf(canvas.getPixel(i, j) * 0.5f + 128.0f, 255.0f);
+	};
+
+	canvas.applyToAllPixels(increaseHeight);
+
+	steps.emplace_back(
+			canvas.toTexture(renderer, height_colors),
+			"Aumentado a altura do terreno artificialmente"
 			);
 }
 
@@ -144,7 +161,7 @@ void Generator::generateIsland(SDL_Renderer *renderer) {
 	auto makeFloor = [](const Canvas& canvas, int i, int j) {
 		float res = canvas.getPixel(i, j);
 
-		if(res < 128.0f) return 0.0f;
+		if(res < 200.0f) return 0.0f;
 
 		return res;
 	};
@@ -166,9 +183,9 @@ void Generator::generateIsland(SDL_Renderer *renderer) {
 			);
 
 	canvas.applyToAllPixels(Filter::distanceMask);
-
+	
 	steps.emplace_back(
-			canvas.toTexture(renderer, height_to_colormap),
+			canvas.toTexture(renderer, height_colors),
 			"Adicionado máscara de distância."
 			);
 }

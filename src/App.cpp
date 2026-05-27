@@ -72,6 +72,14 @@ void App::loop(void) {
 void App::renderWindows(void) {
 	renderGeneratorWindow();
 	renderStepWindow();
+
+	//if(!view3d.isFinished()) {
+		view3d.renderChunk(
+				renderer,
+				generator.getCanvas(),
+				heightmap
+				);
+	//}
 }
 
 void App::renderGeneratorWindow(void) {
@@ -132,7 +140,8 @@ void App::renderGeneratorWindow(void) {
 		generator.setMode(mode);
 		generator.setSeed(gen_seed);
 		generator.resetGeneration();
-		generator.render(renderer);
+		generator.render(renderer, heightmap);
+		view3d.resetView();
 	}
 
 	ImGui::End();
@@ -147,20 +156,23 @@ void App::renderStepWindow(void) {
 
 	if(generator.steps.empty()) {
 		ImGui::TextWrapped("Renderize alguma coisa para você ver as etapas!");
+		ImGui::Dummy(ImVec2(400, 400));
 		ImGui::End();
 		return;
 	}
 
 	if(current_step >= generator.steps.size()) current_step = generator.steps.size() - 1;
 
-	auto& step = generator.steps.at(current_step);
+	//auto& step = generator.steps.at(current_step);
 
 	ImGui::Image(
-			(ImTextureID) step.texture,
-			ImVec2(400, 400)
+			//(ImTextureID) step.texture,
+			//(ImTextureID) heightmap.texture,
+			(ImTextureID) view3d.texture,
+			ImVec2(1280, 720)
 			);
 
-	ImGui::TextWrapped("Descrição da etapa: %s", step.description.c_str());
+	//ImGui::TextWrapped("Descrição da etapa: %s", step.description.c_str());
 
 	float buttonAreaHeight = ImGui::GetFrameHeightWithSpacing();
 	ImVec2 contentMax = ImGui::GetWindowContentRegionMax();

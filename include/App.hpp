@@ -6,6 +6,8 @@
 
 #include "Canvas.hpp"
 #include "Generator.hpp"
+#include "Heightmap.hpp"
+#include "View3d.hpp"
 
 class App {
 	public:
@@ -26,6 +28,8 @@ class App {
 		SDL_Renderer *renderer;
 
 		Generator generator;
+		Heightmap heightmap;
+		View3d view3d;
 
 		size_t current_step;
 		int gen_seed;

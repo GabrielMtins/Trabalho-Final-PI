@@ -5,6 +5,8 @@
 #include <string>
 #include <SDL2/SDL.h>
 
+#include "Heightmap.hpp"
+
 struct StepGen {
 	SDL_Texture *texture;
 	std::string description;
@@ -34,13 +36,12 @@ class Generator {
 
 		Generator(void);
 		void setMode(Mode mode);
-		void render(SDL_Renderer *renderer);
+		void render(SDL_Renderer *renderer, Heightmap& heightmap);
 		void resetGeneration(void);
 		void setSeed(int seed);
+		const Canvas& getCanvas(void) const;
 
 		std::vector<StepGen> steps;
-		SDL_Texture *heightmap = NULL;
-		SDL_Texture *colormap = NULL;
 
 	private:
 		void generateMountain(SDL_Renderer *renderer);
