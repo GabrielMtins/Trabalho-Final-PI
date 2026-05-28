@@ -4,8 +4,7 @@
 #include "Canvas.hpp"
 #include <string>
 #include <SDL2/SDL.h>
-
-#include "Heightmap.hpp"
+#include <memory>
 
 struct StepGen {
 	SDL_Texture *texture;
@@ -36,16 +35,17 @@ class Generator {
 
 		Generator(void);
 		void setMode(Mode mode);
-		void render(SDL_Renderer *renderer, Heightmap& heightmap);
+		void render(SDL_Renderer *renderer);
 		void resetGeneration(void);
 		void setSeed(int seed);
 		const Canvas& getCanvas(void) const;
 
-		std::vector<StepGen> steps;
+		std::vector<std::unique_ptr<StepGen>> steps;
 
 	private:
 		void generateMountain(SDL_Renderer *renderer);
 		void generateIsland(SDL_Renderer *renderer);
+		void pushStep(SDL_Renderer *renderer, const std::string& msg);
 
 		Mode mode = MODE_MOUNTAIN;
 

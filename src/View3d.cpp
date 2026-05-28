@@ -27,8 +27,28 @@ void View3d::resetView(void) {
 	current_chunk = 0;
 }
 
+void View3d::setCameraPosRotatedFromCenter(const Vec3& center, float rotation, float distance) {
+	camera = Vec3(0.0f, 0.0f, -1.0f);
+
+	camera = camera.rotateY(cosf(rotation), sinf(rotation));
+
+	camera *= distance;
+
+	camera += center;
+
+	rot_y = rotation;
+}
+
 void View3d::renderChunk(SDL_Renderer *renderer, const Canvas& canvas, const Heightmap& heightmap) {
 	int i, j;
+
+	if(current_chunk == 0) {
+		cos_rot_x = cosf(rot_x);
+		cos_rot_y = cosf(rot_y);
+
+		sin_rot_x = sinf(rot_x);
+		sin_rot_y = sinf(rot_y);
+	}
 
 	if(current_chunk == VIEW_NUM_CHUNKS) {
 		if(texture != NULL) SDL_DestroyTexture(texture);
@@ -59,8 +79,11 @@ SDL_Color View3d::processPixel(const Canvas& canvas, const Heightmap& heightmap,
 	Vec3 dir = Vec3(
 		float(i - VIEW_WIDTH / 2) / float(VIEW_HEIGHT),
 		-float(j - VIEW_HEIGHT / 2) / float(VIEW_HEIGHT),
-		0.3f
+		0.5f
 	).normalized();
+
+	dir = dir.rotateX(cos_rot_x, sin_rot_x);
+	dir = dir.rotateY(cos_rot_y, sin_rot_y);
 
 	/*
 	float ang = -0.1f;
@@ -95,11 +118,12 @@ Vec3 View3d::findIntersection(const Canvas& canvas, const Vec3& dir) const {
 
 		float h = canvas.getPixel(x, z) * HEIGHT_SCALE;
 
-		if(x < 0 || z < 0 || x >= canvas.getWidth() || z >= canvas.getHeight()) {
-			break;
-		}
 
 		if(pos.y < h) {
+			if(x < 0 || z < 0 || x >= canvas.getWidth() || z >= canvas.getHeight()) {
+				continue;
+			}
+
 			return Vec3(pos.x, h, pos.z);
 		}
 	}

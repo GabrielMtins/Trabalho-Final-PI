@@ -6,6 +6,8 @@
 #define WINDOW_WIDTH 1280
 #define WINDOW_HEIGHT 720
 
+#define RENDER_COOLDOWN 4
+
 App::App(void) {
 	SDL_Init(SDL_INIT_EVERYTHING);
 	IMG_Init(IMG_INIT_PNG);
@@ -32,6 +34,9 @@ App::App(void) {
 
 	ImGui_ImplSDL2_InitForSDLRenderer(window, renderer);
 	ImGui_ImplSDLRenderer2_Init(renderer);
+
+	current_tick = 0;
+	next_tick_render = 0;
 }
 
 void App::run(void) {
@@ -43,6 +48,7 @@ void App::run(void) {
 void App::loop(void) {
 	SDL_Event event;
 	ImGuiIO& io = ImGui::GetIO(); (void)io;
+	current_tick = SDL_GetTicks();
 
 	while(SDL_PollEvent(&event)) {
 		ImGui_ImplSDL2_ProcessEvent(&event);
@@ -50,6 +56,16 @@ void App::loop(void) {
 		if(event.type == SDL_QUIT) {
 			quit = true;
 		}
+	}
+
+	if(current_tick > next_tick_render) {
+		view3d.renderChunk(
+				renderer,
+				generator.getCanvas(),
+				heightmap
+				);
+
+		next_tick_render = current_tick + RENDER_COOLDOWN;
 	}
 
 	ImGui_ImplSDLRenderer2_NewFrame();
@@ -72,14 +88,8 @@ void App::loop(void) {
 void App::renderWindows(void) {
 	renderGeneratorWindow();
 	renderStepWindow();
-
-	//if(!view3d.isFinished()) {
-		view3d.renderChunk(
-				renderer,
-				generator.getCanvas(),
-				heightmap
-				);
-	//}
+	renderHeightmapWindow();
+	renderView3d();
 }
 
 void App::renderGeneratorWindow(void) {
@@ -140,7 +150,12 @@ void App::renderGeneratorWindow(void) {
 		generator.setMode(mode);
 		generator.setSeed(gen_seed);
 		generator.resetGeneration();
-		generator.render(renderer, heightmap);
+		current_step = 0;
+
+		generator.render(renderer);
+		heightmap.makeColormap(renderer, generator.getCanvas());
+		setCameraPosition();
+
 		view3d.resetView();
 	}
 
@@ -163,23 +178,19 @@ void App::renderStepWindow(void) {
 
 	if(current_step >= generator.steps.size()) current_step = generator.steps.size() - 1;
 
-	//auto& step = generator.steps.at(current_step);
+	StepGen *step = generator.steps.at(current_step).get();
 
 	ImGui::Image(
-			//(ImTextureID) step.texture,
-			//(ImTextureID) heightmap.texture,
-			(ImTextureID) view3d.texture,
-			ImVec2(1280, 720)
+			(ImTextureID) step->texture,
+			ImVec2(400, 400)
 			);
 
-	//ImGui::TextWrapped("Descrição da etapa: %s", step.description.c_str());
+	ImGui::TextWrapped("Descrição da etapa: %s", step->description.c_str());
 
 	float buttonAreaHeight = ImGui::GetFrameHeightWithSpacing();
 	ImVec2 contentMax = ImGui::GetWindowContentRegionMax();
 
-	// Posiciona no fundo
 	ImGui::SetCursorPosY(contentMax.y - buttonAreaHeight);
-
 
 	if(ImGui::Button("Anterior") && current_step != 0) {
 		current_step--;
@@ -192,6 +203,88 @@ void App::renderStepWindow(void) {
 	}
 
 	ImGui::End();
+}
+
+void App::renderHeightmapWindow(void) {
+	ImGui::Begin("Heightmaps gerados", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize);
+
+	if(generator.steps.empty()) {
+		ImGui::Dummy(ImVec2(800, 400));
+		ImGui::End();
+		return;
+	}
+
+	StepGen *step = generator.steps.back().get();
+
+	ImGui::Image(
+			(ImTextureID) step->texture,
+			ImVec2(400, 400)
+			);
+
+	ImGui::SameLine();
+
+	ImGui::Image(
+			(ImTextureID) heightmap.texture,
+			ImVec2(400, 400)
+			);
+
+	ImGui::End();
+}
+
+void App::renderView3d(void) {
+	ImGui::Begin("Visualização 3d", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize);
+
+	if(view3d.texture == NULL) {
+		ImGui::Dummy(ImVec2(640, 360));
+	} else {
+		ImGui::Image(
+				(ImTextureID) view3d.texture,
+				ImVec2(640, 360)
+				);
+	}
+
+	static const float my_tau = 3.1415f * 2.0f;
+
+	ImGui::Text("Rotação: ");
+	ImGui::SameLine();
+	ImGui::SetNextItemWidth(-1);
+
+	if(ImGui::SliderFloat("##camera_rotation", &camera_rotation, 0.0f, my_tau)) {
+		if(!generator.steps.empty()) {
+			setCameraPosition();
+			view3d.resetView();
+		}
+	}
+
+	ImGui::End();
+}
+
+void App::setCameraPosition(void) {
+	switch(mode) {
+		case Generator::MODE_MOUNTAIN:
+			view3d.setCameraPosRotatedFromCenter(
+					Vec3(128.0f, 160.0f, 128.0f),
+					camera_rotation,
+					128.0f
+					);
+
+			view3d.rot_x = 0.7f;
+			break;
+
+		case Generator::MODE_ISLAND:
+			view3d.setCameraPosRotatedFromCenter(
+					Vec3(128.0f, 64.0f, 128.0f),
+					camera_rotation,
+					128.0f
+					);
+
+			view3d.rot_x = 0.5f;
+
+			break;
+
+		case Generator::MODE_PLAINS:
+			break;
+	}
 }
 
 App::~App(void) {

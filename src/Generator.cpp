@@ -18,7 +18,7 @@ void Generator::setMode(Mode mode) {
 	this->mode = mode;
 }
 
-void Generator::render(SDL_Renderer *renderer, Heightmap& heightmap) {
+void Generator::render(SDL_Renderer *renderer) {
 	resetGeneration();
 
 	switch(mode) {
@@ -33,8 +33,6 @@ void Generator::render(SDL_Renderer *renderer, Heightmap& heightmap) {
 		default:
 			break;
 	}
-
-	heightmap.makeColormap(renderer, canvas);
 }
 
 void Generator::resetGeneration(void) {
@@ -53,8 +51,8 @@ void Generator::generateMountain(SDL_Renderer *renderer) {
 	canvas.randomNoise(seed);
 	canvas.setOutsideValue(128.0f);
 
-	steps.emplace_back(
-			canvas.toTexture(renderer, height_colors),
+	pushStep(
+			renderer,
 			"Adicionado ruído aleatório."
 			);
 
@@ -62,8 +60,8 @@ void Generator::generateMountain(SDL_Renderer *renderer) {
 		canvas.applyToAllPixels(Filter::gaussianBlur<15, 15>);
 	}
 
-	steps.emplace_back(
-			canvas.toTexture(renderer, height_colors),
+	pushStep(
+			renderer,
 			"Adicionado filtro passa-baixa (convolução gaussiana com tamanho 7 e sigma 1.5f) 8 vezes."
 			);
 
@@ -75,8 +73,8 @@ void Generator::generateMountain(SDL_Renderer *renderer) {
 
 	canvas.applyToAllPixels(histogramEq);
 
-	steps.emplace_back(
-			canvas.toTexture(renderer, height_colors),
+	pushStep(
+			renderer,
 			"Feito equalização de histograma para distribuir as cores."
 			);
 
@@ -84,8 +82,8 @@ void Generator::generateMountain(SDL_Renderer *renderer) {
 		canvas.applyToAllPixels(Filter::gaussianBlur<3, 15>);
 	}
 
-	steps.emplace_back(
-			canvas.toTexture(renderer, height_colors),
+	pushStep(
+			renderer,
 			"Adicionado filtro passa-baixa gaussiano para suavizar as diferenças de altura criada pela equalização do histograma."
 			);
 
@@ -95,8 +93,8 @@ void Generator::generateMountain(SDL_Renderer *renderer) {
 
 	canvas.applyToAllPixels(increaseHeight);
 
-	steps.emplace_back(
-			canvas.toTexture(renderer, height_colors),
+	pushStep(
+			renderer,
 			"Aumentado a altura do terreno artificialmente"
 			);
 }
@@ -105,8 +103,8 @@ void Generator::generateIsland(SDL_Renderer *renderer) {
 	canvas.randomNoise(seed);
 	canvas.setOutsideValue(0.0f);
 
-	steps.emplace_back(
-			canvas.toTexture(renderer, height_colors),
+	pushStep(
+			renderer,
 			"Adicionado ruído aleatório."
 			);
 
@@ -131,17 +129,17 @@ void Generator::generateIsland(SDL_Renderer *renderer) {
 
 	canvas.applyToAllPixels(makeCenterHeight);
 
-	steps.emplace_back(
-			canvas.toTexture(renderer, height_colors),
+	pushStep(
+			renderer,
 			"Aumentado o valor dos pixels do centro para criar região de ilha."
 			);
 
 	for(int i = 0; i < 8; i++) {
-		canvas.applyToAllPixels(Filter::averageBlur<7>);
+		canvas.applyToAllPixels(Filter::averageBlur<9>);
 	}
 
-	steps.emplace_back(
-			canvas.toTexture(renderer, height_colors),
+	pushStep(
+			renderer,
 			"Aplicado filtro passa-baixa (convolução de média com kernel de tamanho 7)."
 			);
 
@@ -153,8 +151,8 @@ void Generator::generateIsland(SDL_Renderer *renderer) {
 
 	canvas.applyToAllPixels(histogramEq);
 
-	steps.emplace_back(
-			canvas.toTexture(renderer, height_colors),
+	pushStep(
+			renderer,
 			"Feito equalização de histograma para distribuir as cores."
 			);
 
@@ -168,8 +166,8 @@ void Generator::generateIsland(SDL_Renderer *renderer) {
 
 	canvas.applyToAllPixels(makeFloor);
 
-	steps.emplace_back(
-			canvas.toTexture(renderer, height_colors),
+	pushStep(
+			renderer,
 			"Criado depressões na imagem ao zerar os valores abaixo de 128."
 			);
 
@@ -177,15 +175,24 @@ void Generator::generateIsland(SDL_Renderer *renderer) {
 		canvas.applyToAllPixels(Filter::averageBlur<7>);
 	}
 
-	steps.emplace_back(
-			canvas.toTexture(renderer, height_colors),
+	pushStep(
+			renderer,
 			"Adicionado filtro passa-baixa para suavizar as montanhas."
 			);
 
 	canvas.applyToAllPixels(Filter::distanceMask);
 	
-	steps.emplace_back(
-			canvas.toTexture(renderer, height_colors),
+	pushStep(
+			renderer,
 			"Adicionado máscara de distância."
+			);
+}
+
+void Generator::pushStep(SDL_Renderer *renderer, const std::string& msg) {
+	steps.push_back(
+			std::make_unique<StepGen>(
+				canvas.toTexture(renderer, height_colors),
+				msg
+				)
 			);
 }

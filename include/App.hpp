@@ -21,6 +21,9 @@ class App {
 		void renderWindows(void);
 		void renderGeneratorWindow(void);
 		void renderStepWindow(void);
+		void renderHeightmapWindow(void);
+		void renderView3d(void);
+		void setCameraPosition(void);
 
 		bool quit = false;
 
@@ -33,6 +36,10 @@ class App {
 
 		size_t current_step;
 		int gen_seed;
+		float camera_rotation = 0.0f;
+
+		uint32_t next_tick_render;
+		uint32_t current_tick;
 
 		Generator::Mode mode = Generator::MODE_MOUNTAIN;
 		std::string mode_name_str = "Montanhoso";
