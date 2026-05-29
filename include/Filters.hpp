@@ -24,7 +24,7 @@ namespace Filter {
 		static constexpr int radius = size / 2;
 
 		static constexpr auto kernel1d = []() constexpr {
-			constexpr float sigma = float(sigma10) / 10;
+			constexpr float sigma = float(sigma10) / 10.0f;
 			std::array<float, size> k{};
 			float sum = 0.0f;
 

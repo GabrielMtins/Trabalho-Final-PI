@@ -30,7 +30,8 @@ void Generator::render(SDL_Renderer *renderer) {
 			generateIsland(renderer);
 			break;
 
-		default:
+		case MODE_PLAINS:
+			generatePlains(renderer);
 			break;
 	}
 }
@@ -185,6 +186,73 @@ void Generator::generateIsland(SDL_Renderer *renderer) {
 	pushStep(
 			renderer,
 			"Adicionado máscara de distância."
+			);
+}
+
+void Generator::generatePlains(SDL_Renderer *renderer) {
+	canvas.randomNoise(seed);
+	canvas.setOutsideValue(255.0f);
+
+	pushStep(
+			renderer,
+			"Adicionado ruído aleatório."
+			);
+
+	for(int i = 0; i < 8; i++) {
+		canvas.applyToAllPixels(Filter::gaussianBlur<15, 150>);
+	}
+
+	pushStep(
+			renderer,
+			"Adicionado filtro passa-baixa (convolução gaussiana com tamanho 7 e sigma 1.5f) 8 vezes."
+			);
+
+	auto my_histo = canvas.getNormalizedHistogram();
+
+	auto histogramEq = [my_histo](const Canvas& canvas, int i, int j) {
+		return Filter::applyTransform(canvas, i, j, my_histo);
+	};
+
+	canvas.applyToAllPixels(histogramEq);
+
+	pushStep(
+			renderer,
+			"Feito equalização de histograma para distribuir as cores."
+			);
+
+	auto makeHeight = [](const Canvas& canvas, int i, int j) {
+		float res = canvas.getPixel(i, j);
+
+		if(res < 100.0f) return 0.0f;
+
+		return float(MAX_HEIGHT - 1);
+	};
+
+	canvas.applyToAllPixels(makeHeight);
+
+	pushStep(
+			renderer,
+			"Criado depressões na imagem ao zerar os valores abaixo de 128."
+			);
+
+	for(int i = 0; i < 4; i++) {
+		canvas.applyToAllPixels(Filter::gaussianBlur<5, 15>);
+	}
+
+	pushStep(
+			renderer,
+			"Adicionado filtro passa-baixa gaussiano para suavizar as diferenças de altura criada pela equalização do histograma."
+			);
+
+	auto adjustHeight = [](const Canvas& canvas, int i, int j) {
+		return fminf(canvas.getPixel(i, j) * 0.15f + 0.0f * 255.0f, 255.0f);
+	};
+
+	canvas.applyToAllPixels(adjustHeight);
+
+	pushStep(
+			renderer,
+			"Aumentado a altura do terreno artificialmente"
 			);
 }
 

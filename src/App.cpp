@@ -263,7 +263,7 @@ void App::setCameraPosition(void) {
 	switch(mode) {
 		case Generator::MODE_MOUNTAIN:
 			view3d.setCameraPosRotatedFromCenter(
-					Vec3(128.0f, 160.0f, 128.0f),
+					Vec3(128.0f, 128.0f, 128.0f),
 					camera_rotation,
 					128.0f
 					);
@@ -283,6 +283,13 @@ void App::setCameraPosition(void) {
 			break;
 
 		case Generator::MODE_PLAINS:
+			view3d.setCameraPosRotatedFromCenter(
+					Vec3(128.0f, 48.0f, 128.0f),
+					camera_rotation,
+					128.0f
+					);
+
+			view3d.rot_x = 0.7f;
 			break;
 	}
 }

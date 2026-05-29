@@ -45,6 +45,7 @@ class Generator {
 	private:
 		void generateMountain(SDL_Renderer *renderer);
 		void generateIsland(SDL_Renderer *renderer);
+		void generatePlains(SDL_Renderer *renderer);
 		void pushStep(SDL_Renderer *renderer, const std::string& msg);
 
 		Mode mode = MODE_MOUNTAIN;

@@ -20,7 +20,7 @@ View3d::View3d(void) {
 	camera = Vec3(128.0f, 128.0f, 0.0f);
 	current_chunk = VIEW_NUM_CHUNKS;
 
-	SDL_FillRect(surface, NULL, SDL_MapRGB(surface->format, 0xff, 0xff, 0x00));
+	SDL_FillRect(surface, NULL, SDL_MapRGB(surface->format, 0x00, 0x00, 0x00));
 }
 
 void View3d::resetView(void) {
@@ -50,10 +50,16 @@ void View3d::renderChunk(SDL_Renderer *renderer, const Canvas& canvas, const Hei
 		sin_rot_y = sinf(rot_y);
 	}
 
+	if(current_chunk > VIEW_NUM_CHUNKS) {
+		return;
+	}
+
 	if(current_chunk == VIEW_NUM_CHUNKS) {
 		if(texture != NULL) SDL_DestroyTexture(texture);
 
 		texture = SDL_CreateTextureFromSurface(renderer, surface);
+
+		current_chunk++;
 
 		return;
 	}
