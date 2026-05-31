@@ -13,6 +13,7 @@ class Canvas {
 		Canvas(int w, int h, float outside_value = 0.0f);
 
 		float getPixel(int i, int j) const;
+		float getPixelInterpolated(float i, float j) const;
 		void setPixel(int i, int j, float value);
 		void randomNoise(unsigned int seed);
 

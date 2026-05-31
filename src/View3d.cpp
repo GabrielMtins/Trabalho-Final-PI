@@ -39,6 +39,10 @@ void View3d::setCameraPosRotatedFromCenter(const Vec3& center, float rotation, f
 	rot_y = rotation;
 }
 
+SDL_Surface * View3d::getSurface(void) const {
+	return surface;
+}
+
 void View3d::renderChunk(SDL_Renderer *renderer, const Canvas& canvas, const Heightmap& heightmap) {
 	int i, j;
 
@@ -123,7 +127,6 @@ Vec3 View3d::findIntersection(const Canvas& canvas, const Vec3& dir) const {
 		z = int(pos.z);
 
 		float h = canvas.getPixel(x, z) * HEIGHT_SCALE;
-
 
 		if(pos.y < h) {
 			if(x < 0 || z < 0 || x >= canvas.getWidth() || z >= canvas.getHeight()) {

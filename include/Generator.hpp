@@ -40,6 +40,8 @@ class Generator {
 		void setSeed(int seed);
 		const Canvas& getCanvas(void) const;
 
+		SDL_Surface * makeSurface(void) const;
+
 		std::vector<std::unique_ptr<StepGen>> steps;
 
 	private:

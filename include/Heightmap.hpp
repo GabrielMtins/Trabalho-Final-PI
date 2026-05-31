@@ -13,6 +13,7 @@ class Heightmap {
 		void makeColormap(SDL_Renderer *renderer, const Canvas& canvas);
 		SDL_Color getColor(int i, int j) const;
 		SDL_Color getColorInterpolated(float i, float j) const;
+		SDL_Surface * makeSurface(void) const;
 
 		SDL_Texture *texture = NULL;
 
@@ -20,7 +21,6 @@ class Heightmap {
 		float rot_x, rot_y;
 
 	private:
-		SDL_Surface * makeSurface(const Canvas& canvas) const;
 		SDL_Color computePixel(const Canvas& canvas, int i, int j) const;
 		float computeShading(const Canvas& canvas, int i, int j) const;
 		SDL_Color computeColorWithShading(const SDL_Color& color, float shade) const;

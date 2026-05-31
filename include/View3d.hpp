@@ -21,6 +21,7 @@ class View3d {
 		void renderChunk(SDL_Renderer *renderer, const Canvas& canvas, const Heightmap& heightmap);
 		void resetView(void);
 		void setCameraPosRotatedFromCenter(const Vec3& center, float rotation, float distance);
+		SDL_Surface * getSurface(void) const;
 
 		Vec3 camera;
 		float rot_x = 0.0f, rot_y = 0.0f;

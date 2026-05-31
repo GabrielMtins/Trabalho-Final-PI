@@ -48,6 +48,10 @@ const Canvas& Generator::getCanvas(void) const {
 	return canvas;
 }
 
+SDL_Surface * Generator::makeSurface(void) const {
+	return canvas.toSurface(height_colors);
+}
+
 void Generator::generateMountain(SDL_Renderer *renderer) {
 	canvas.randomNoise(seed);
 	canvas.setOutsideValue(128.0f);

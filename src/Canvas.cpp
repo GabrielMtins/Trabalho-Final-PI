@@ -19,6 +19,25 @@ float Canvas::getPixel(int i, int j) const {
 	return data.at(i + j * w);
 }
 
+float Canvas::getPixelInterpolated(float i, float j) const {
+	float a, b, c, d;
+
+	float part_i = i - floorf(i);
+	float part_j = j - floorf(j);
+
+	a = getPixel(i, j);
+	b = getPixel(i + 1, j);
+
+	c = getPixel(i, j + 1);
+	d = getPixel(i + 1, j + 1);
+
+	return
+		a * (1.0f - part_i) * (1.0f - part_j) +
+		b * (part_i) * (1.0f - part_j) +
+		c * (1.0f - part_i) * (part_j) +
+		d * (part_i) * part_j;
+}
+
 void Canvas::setPixel(int i, int j, float value) {
 	if(i < 0 || j < 0 || i >= w || j >= h) {
 		return;

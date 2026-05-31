@@ -37,6 +37,11 @@ App::App(void) {
 
 	current_tick = 0;
 	next_tick_render = 0;
+
+	srand(time(NULL));
+
+	gen_seed = rand();
+	gen_count = rand() % 100;
 }
 
 void App::run(void) {
@@ -115,16 +120,16 @@ void App::renderGeneratorWindow(void) {
 
 	ImGui::SameLine();
 
-	if(ImGui::Button("Planície", button_size)) {
+	if(ImGui::Button("Lagos", button_size)) {
 		mode = Generator::MODE_PLAINS;
-		mode_name_str = "Planície";
+		mode_name_str = "Lagos";
 	}
 
 	ImGui::Dummy(ImVec2(0.0f, 10.0f));
 
 	ImGui::Text("Tipo escolhido: ");
 	ImGui::SameLine();
-	ImGui::TextColored(ImVec4(0.3f, 1.0f, 1.0f, 1.0f), mode_name_str.c_str());
+	ImGui::TextColored(ImVec4(0.3f, 1.0f, 1.0f, 1.0f), "%s", mode_name_str.c_str());
 
 	ImGui::Dummy(ImVec2(0.0f, 10.0f));
 
@@ -137,7 +142,8 @@ void App::renderGeneratorWindow(void) {
 	ImGui::InputInt("##genseed", &gen_seed, 1);
 
 	if(ImGui::Button("Gerar seed aleatória")) {
-		gen_seed = rand();
+		gen_seed = rand() + gen_count;
+		gen_count++;
 	}
 
 	ImGui::Dummy(ImVec2(0.0f, 10.0f));
@@ -157,6 +163,21 @@ void App::renderGeneratorWindow(void) {
 		setCameraPosition();
 
 		view3d.resetView();
+	}
+
+	ImGui::SameLine();
+
+	ImGui::SetNextItemWidth(-1);
+
+	if(ImGui::Button("Salvar heightmap")) {
+		if(save()) {
+			show_modal_save_popup = true;
+		}
+	}
+
+	if(show_modal_save_popup) {
+		SDL_ShowSimpleMessageBox(0, "Salvo", "Os arquivos heightmap.png, colormap.png e view3d.png foram salvos!", window);
+		show_modal_save_popup = false;
 	}
 
 	ImGui::End();
@@ -292,6 +313,27 @@ void App::setCameraPosition(void) {
 			view3d.rot_x = 0.7f;
 			break;
 	}
+}
+
+bool App::save(void) const {
+	SDL_Surface *heightpng, *colorpng, *viewpng;
+
+	if(generator.steps.empty()) {
+		return false;
+	}
+
+	viewpng = view3d.getSurface();
+	heightpng = generator.makeSurface();
+	colorpng = heightmap.makeSurface();
+
+	IMG_SavePNG(heightpng, "heightmap.png");
+	IMG_SavePNG(colorpng, "colormap.png");
+	IMG_SavePNG(viewpng, "view3d.png");
+
+	SDL_FreeSurface(heightpng);
+	SDL_FreeSurface(colorpng);
+
+	return true;
 }
 
 App::~App(void) {

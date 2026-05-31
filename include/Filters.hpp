@@ -4,6 +4,18 @@
 #include "Canvas.hpp"
 
 namespace Filter {
+	constexpr float constexpr_exp_taylor(float x) {
+		float result = 1.0f;
+		float term = 1.0f;
+
+		for(int i = 1; i <= 500; i++) {
+			term *= x / i;
+			result += term;
+		}
+
+		return result;
+	}
+
 	template<int size>
 	float averageBlur(const Canvas& canvas, int i, int j) {
 		static constexpr int radius = size / 2;
@@ -29,7 +41,8 @@ namespace Filter {
 			float sum = 0.0f;
 
 			for(int x = -radius; x <= radius; x++) {
-				k[x + radius] = std::exp(-(x * x) / (2.0f * sigma * sigma));
+				//k[x + radius] = std::exp(-(x * x) / (2.0f * sigma * sigma));
+				k[x + radius] = constexpr_exp_taylor(-(x * x) / (2.0f * sigma * sigma));
 				sum += k[x + radius];
 			}
 

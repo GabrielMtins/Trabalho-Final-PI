@@ -26,7 +26,7 @@ void Heightmap::makeColormap(SDL_Renderer *renderer, const Canvas& canvas) {
 		}
 	}
 
-	SDL_Surface *surface = makeSurface(canvas);
+	SDL_Surface *surface = makeSurface();
 
 	if(texture != NULL) {
 		SDL_DestroyTexture(texture);
@@ -65,11 +65,11 @@ SDL_Color Heightmap::getColorInterpolated(float i, float j) const {
 			);
 }
 
-SDL_Surface * Heightmap::makeSurface(const Canvas& canvas) const {
+SDL_Surface * Heightmap::makeSurface(void) const {
 	SDL_Surface *surface = SDL_CreateRGBSurface(
 			0,
-			canvas.getWidth(),
-			canvas.getHeight(),
+			w,
+			h,
 			32,
 			0, 0, 0, 0
 			);
