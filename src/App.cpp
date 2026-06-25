@@ -194,9 +194,11 @@ void App::renderStepWindow(void) {
 			ImGuiCond_FirstUseEver
 			);
 
+	static const float max_y = ImGui::GetMainViewport()->Size.y * 0.9f;
+
 	ImGui::SetNextWindowSizeConstraints(
-			ImVec2(0, 800),
-			ImVec2(FLT_MAX, 800)
+			ImVec2(0, max_y),
+			ImVec2(FLT_MAX, max_y)
 			);
 	ImGui::Begin("Passos da Geração", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize);
 
