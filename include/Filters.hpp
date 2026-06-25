@@ -4,6 +4,8 @@
 #include "Canvas.hpp"
 
 namespace Filter {
+	/* A biblioteca padrão de C++ no C++17 não possui exp() como constexpr,
+	 * essa daqui é só uma implementação rápida para tempo de compilação. */
 	constexpr float constexpr_exp_taylor(float x) {
 		float result = 1.0f;
 		float term = 1.0f;
@@ -31,6 +33,8 @@ namespace Filter {
 		return res;
 	}
 
+	/* Filtro gaussiano, size é o tamanho do kernel e sigma10 é o valor de sigma
+	 * multiplicado por 10. Templates em C++17 não tem suporte a ponto flutuante. */
 	template<int size, int sigma10>
 	float gaussianBlur(const Canvas& canvas, int i, int j) {
 		static constexpr int radius = size / 2;
@@ -41,7 +45,6 @@ namespace Filter {
 			float sum = 0.0f;
 
 			for(int x = -radius; x <= radius; x++) {
-				//k[x + radius] = std::exp(-(x * x) / (2.0f * sigma * sigma));
 				k[x + radius] = constexpr_exp_taylor(-(x * x) / (2.0f * sigma * sigma));
 				sum += k[x + radius];
 			}
@@ -68,10 +71,15 @@ namespace Filter {
 		return res;
 	}
 
+	/* Aplicar um limite. */
 	float applyLimit(const Canvas& canvas, int i, int j, float lower, float higher);
 
+	/* Aplicar uma transformação de um range para outro. Utilizado na
+	 * equalização de histogramas. */
 	float applyTransform(const Canvas& canvas, int i, int j, const std::array<float, MAX_HEIGHT>& palette);
 
+	/* Aplicar uma máscara de distância que atenua os valores de acordo
+	 * com sua distância em relação ao centro da imagem. */
 	float distanceMask(const Canvas& canvas, int i, int j);
 };
 
