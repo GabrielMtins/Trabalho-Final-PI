@@ -98,6 +98,11 @@ void App::renderWindows(void) {
 }
 
 void App::renderGeneratorWindow(void) {
+	ImGui::SetNextWindowPos(
+			ImVec2(10, 10),
+			ImGuiCond_FirstUseEver
+			);
+
 	ImGui::Begin("Gerador", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize);
 
 	ImGui::Text("Escolha um modo de geração:");
@@ -184,6 +189,11 @@ void App::renderGeneratorWindow(void) {
 }
 
 void App::renderStepWindow(void) {
+	ImGui::SetNextWindowPos(
+			ImVec2(ImGui::GetMainViewport()->Size.x - 500, 10),
+			ImGuiCond_FirstUseEver
+			);
+
 	ImGui::SetNextWindowSizeConstraints(
 			ImVec2(0, 800),
 			ImVec2(FLT_MAX, 800)
@@ -227,6 +237,11 @@ void App::renderStepWindow(void) {
 }
 
 void App::renderHeightmapWindow(void) {
+	ImGui::SetNextWindowPos(
+			ImVec2(450, 10),
+			ImGuiCond_FirstUseEver
+			);
+
 	ImGui::Begin("Heightmaps gerados", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize);
 
 	if(generator.steps.empty()) {
@@ -253,6 +268,11 @@ void App::renderHeightmapWindow(void) {
 }
 
 void App::renderView3d(void) {
+	ImGui::SetNextWindowPos(
+			ImVec2(50, ImGui::GetMainViewport()->Size.y - 500),
+			ImGuiCond_FirstUseEver
+			);
+
 	ImGui::Begin("Visualização 3d", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize);
 
 	if(view3d.texture == NULL) {

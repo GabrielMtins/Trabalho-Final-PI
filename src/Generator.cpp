@@ -67,7 +67,8 @@ void Generator::generateMountain(SDL_Renderer *renderer) {
 
 	pushStep(
 			renderer,
-			"Adicionado filtro passa-baixa (convolução gaussiana com tamanho 7 e sigma 1.5f) 8 vezes."
+			"Adicionado 12 vezes um filtro de convolução gaussiana de tamanho 15 com sigma 1.5. "
+			"Ele atua como um filtro passa-baixa, atenuando as frequências altas da imagem. "
 			);
 
 	auto my_histo = canvas.getNormalizedHistogram();
@@ -80,7 +81,8 @@ void Generator::generateMountain(SDL_Renderer *renderer) {
 
 	pushStep(
 			renderer,
-			"Feito equalização de histograma para distribuir as cores."
+			"A convolução tende a jogar os valores para a média. "
+			"Para distribuir os valores, realiza-se uma equalização de histograma."
 			);
 
 	for(int i = 0; i < 4; i++) {
@@ -89,7 +91,9 @@ void Generator::generateMountain(SDL_Renderer *renderer) {
 
 	pushStep(
 			renderer,
-			"Adicionado filtro passa-baixa gaussiano para suavizar as diferenças de altura criada pela equalização do histograma."
+			"Adicionado 4 vezes um filtro de convolução gaussiana de tamanho 3 com sigma 1.5. "
+			"A equalização do histograma cria algumas transições abruptas e "
+			"o filtro tem o papel de suavizá-las."
 			);
 
 	auto increaseHeight = [](const Canvas& canvas, int i, int j) {
@@ -100,7 +104,7 @@ void Generator::generateMountain(SDL_Renderer *renderer) {
 
 	pushStep(
 			renderer,
-			"Aumentado a altura do terreno artificialmente"
+			"Aqui, aumenta-se o terreno distribuindo as cores para um range entre 128-255."
 			);
 }
 
@@ -136,7 +140,9 @@ void Generator::generateIsland(SDL_Renderer *renderer) {
 
 	pushStep(
 			renderer,
-			"Aumentado o valor dos pixels do centro para criar região de ilha."
+			"Feito uma transformação baseada em uma máscara para aumentar a altura do terreno no centro. "
+			"O objetivo é que quando o filtro passa-baixa atuar, a parte central sempre irá ficar maior, dando "
+			"um aspecto montanhoso no centro."
 			);
 
 	for(int i = 0; i < 8; i++) {
@@ -145,7 +151,8 @@ void Generator::generateIsland(SDL_Renderer *renderer) {
 
 	pushStep(
 			renderer,
-			"Aplicado filtro passa-baixa (convolução de média com kernel de tamanho 7)."
+			"Adicionado 8 vezes um filtro de caixa de tamanho 9. "
+			"Ele atua como um filtro passa-baixa, atenuando as frequências altas da imagem. "
 			);
 
 	auto my_histo = canvas.getNormalizedHistogram();
@@ -158,7 +165,8 @@ void Generator::generateIsland(SDL_Renderer *renderer) {
 
 	pushStep(
 			renderer,
-			"Feito equalização de histograma para distribuir as cores."
+			"A convolução tende a jogar os valores para a média. "
+			"Para distribuir os valores, realiza-se uma equalização de histograma."
 			);
 
 	auto makeFloor = [](const Canvas& canvas, int i, int j) {
@@ -173,7 +181,7 @@ void Generator::generateIsland(SDL_Renderer *renderer) {
 
 	pushStep(
 			renderer,
-			"Criado depressões na imagem ao zerar os valores abaixo de 128."
+			"Criado depressões na imagem ao zerar os valores abaixo de 200."
 			);
 
 	for(int i = 0; i < 8; i++) {
@@ -182,14 +190,17 @@ void Generator::generateIsland(SDL_Renderer *renderer) {
 
 	pushStep(
 			renderer,
-			"Adicionado filtro passa-baixa para suavizar as montanhas."
+			"Adicionado 8 vezes um filtro de caixa de tamanho 7. "
+			"Ele atua como um filtro passa-baixa, atenuando as frequências altas da imagem "
+			"que foram criadas por conta do corte abrupto."
 			);
 
 	canvas.applyToAllPixels(Filter::distanceMask);
 	
 	pushStep(
 			renderer,
-			"Adicionado máscara de distância."
+			"Adicionado uma máscara de distância que atenua os valores de acordo "
+			"com a distância do pixel ao centro da imagem."
 			);
 }
 
@@ -208,7 +219,9 @@ void Generator::generatePlains(SDL_Renderer *renderer) {
 
 	pushStep(
 			renderer,
-			"Adicionado filtro passa-baixa (convolução gaussiana com tamanho 7 e sigma 1.5f) 8 vezes."
+			"Adicionado 8 vezes um filtro de convolução gaussiana de tamanho 15 com sigma 15. "
+			"Ele atua como um filtro passa-baixa, atenuando as frequências altas da imagem. "
+			"O sigma alto deixa a imagem mais suave que é o objetivo."
 			);
 
 	auto my_histo = canvas.getNormalizedHistogram();
@@ -221,7 +234,8 @@ void Generator::generatePlains(SDL_Renderer *renderer) {
 
 	pushStep(
 			renderer,
-			"Feito equalização de histograma para distribuir as cores."
+			"A convolução tende a jogar os valores para a média. "
+			"Para distribuir os valores, realiza-se uma equalização de histograma."
 			);
 
 	auto makeHeight = [](const Canvas& canvas, int i, int j) {
@@ -236,7 +250,7 @@ void Generator::generatePlains(SDL_Renderer *renderer) {
 
 	pushStep(
 			renderer,
-			"Criado depressões na imagem ao zerar os valores abaixo de 128."
+			"Criado depressões na imagem ao zerar os valores abaixo de 100."
 			);
 
 	for(int i = 0; i < 4; i++) {
@@ -245,7 +259,9 @@ void Generator::generatePlains(SDL_Renderer *renderer) {
 
 	pushStep(
 			renderer,
-			"Adicionado filtro passa-baixa gaussiano para suavizar as diferenças de altura criada pela equalização do histograma."
+			"Adicionado 4 vezes um filtro de convolução gaussiana de tamanho 3 com sigma 5. "
+			"Ele atua como um filtro passa-baixa, atenuando as frequências altas da imagem "
+			"que foram criadas devido ao corte abrupto de valores."
 			);
 
 	auto adjustHeight = [](const Canvas& canvas, int i, int j) {
@@ -256,7 +272,7 @@ void Generator::generatePlains(SDL_Renderer *renderer) {
 
 	pushStep(
 			renderer,
-			"Aumentado a altura do terreno artificialmente"
+			"Redistribuídoas cores no range 0-38 para se ajustar no heightmap."
 			);
 }
 
