@@ -27,7 +27,14 @@ pkg_search_module(SDL2 REQUIRED sdl2)
 pkg_search_module(SDL2_IMAGE REQUIRED SDL2_image)
 
 find_library(MATH_LIBRARY m)
-find_package(OpenMP REQUIRED)
+find_package(OpenMP QUIET)
+
+if(OpenMP_CXX_FOUND)
+	target_link_libraries(${PROJECT_NAME} PRIVATE OpenMP::OpenMP_CXX)
+	message(STATUS, "OpenMP sendo usado.")
+else()
+	message(STATUTS, "OpenMP não encontrado, compilando normalmente.")
+endif()
 
 target_include_directories(${PROJECT_NAME} PRIVATE
     ${SDL2_INCLUDE_DIRS}
